@@ -1,0 +1,109 @@
+import requests
+from bs4 import BeautifulSoup
+from textblob import TextBlob
+
+# ========= CONFIG ========= #
+ACCESS_TOKEN = 'hqBfz2Nc96QV922NM5E8VMK4jBR_DRTEnjPp9p82tbpuGFSKSFEYMVTNXxhygXJh'
+
+# ========= LABUBU DATABASE ========= #
+labubus = [
+    {"name": "Forest Labubu", "vibe": "peaceful, nature, calm, gentle"},
+    {"name": "Devil Labubu", "vibe": "dark, mischievous, edgy, rebellious"},
+    {"name": "Pirate Labubu", "vibe": "adventurous, bold, wild, risky"},
+    {"name": "Dreamy Labubu", "vibe": "whimsical, soft, fantasy, surreal"},
+    {"name": "Angel Labubu", "vibe": "pure, light, innocent, sweet"}
+]
+
+# ========= GENIUS API SEARCH ========= #
+def search_song(song_title, access_token):
+    base_url = "https://api.genius.com"
+    headers = {'Authorization': f'Bearer {access_token}'}
+    search_url = f"{base_url}/search"
+    params = {'q': song_title}
+
+    response = requests.get(search_url, params=params, headers=headers)
+    results = response.json()
+    hits = results['response']['hits']
+
+    if not hits:
+        return None
+
+    song_info = hits[0]['result']
+    return {
+        'title': song_info['title'],
+        'artist': song_info['primary_artist']['name'],
+        'url': song_info['url']
+    }
+
+# ========= SCRAPE LYRICS ========= #
+def scrape_lyrics_from_url(song_url):
+    response = requests.get(song_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    containers = soup.find_all('div', class_='Lyrics__Container-sc-1ynbvzw-6')
+    if containers:
+        lyrics = "\n".join([c.get_text(separator="\n") for c in containers])
+    else:
+        legacy = soup.find('div', class_='lyrics')
+        lyrics = legacy.get_text() if legacy else None
+    return lyrics
+
+# ========= SENTIMENT ANALYSIS ========= #
+def analyze_sentiment(text):
+    blob = TextBlob(text)
+    sentiment = blob.sentiment
+    return {
+        "polarity": sentiment.polarity,
+        "subjectivity": sentiment.subjectivity
+    }
+
+# ========= LABUBU MATCHING ========= #
+def match_labubu(lyrics, sentiment_score):
+    keywords = lyrics.lower().split()
+    match_scores = []
+    for labubu in labubus:
+        vibe_words = labubu["vibe"].split(", ")
+        score = sum(word in keywords for word in vibe_words)
+        match_scores.append((labubu["name"], score))
+    
+    match_scores.sort(key=lambda x: x[1], reverse=True)
+
+    if sentiment_score["polarity"] < -0.2:
+        return "Devil Labubu 😈"
+    elif sentiment_score["polarity"] > 0.5:
+        return "Angel Labubu 😇"
+    elif match_scores[0][1] > 0:
+        return match_scores[0][0]
+    else:
+        return "Dreamy Labubu 🌙"
+
+# ========= MAIN FUNCTION ========= #
+def run_labubu_matcher():
+    song_input = input("🎵 Enter a song title and artist: ")
+    print("🔍 Searching Genius...")
+
+    song = search_song(song_input, ACCESS_TOKEN)
+
+    if not song:
+        print("❌ Song not found.")
+        return
+
+    print(f"🎶 Found: {song['title']} by {song['artist']}")
+    print("📄 Fetching lyrics...")
+
+    lyrics = scrape_lyrics_from_url(song['url'])
+
+    if not lyrics:
+        print("❌ Could not retrieve lyrics.")
+        return
+
+    sentiment = analyze_sentiment(lyrics)
+    prediction = match_labubu(lyrics, sentiment)
+
+    print("\n=== RESULT ===")
+    print(f"🎧 Sentiment: {sentiment}")
+    print(f"🔮 Your Labubu is: {prediction}")
+
+# ========= RUN ========= #
+if __name__ == "__main__":
+    run_labubu_matcher()
