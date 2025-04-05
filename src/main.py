@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from textblob import TextBlob
 from transformers import pipeline
 import torch
+import gc
 import time
 
 # ========= CONFIG ========= #
@@ -57,15 +58,16 @@ def scrape_lyrics_from_url(song_url):
 #     }
 
 
+
+
 def analyze_sentiment(text):
     emotion_classifier = pipeline(
-        "text-classification",
-        model="j-hartmann/emotion-english-distilroberta-base",
-        top_k=None,
-        device=-1
-    )
-    
-    
+    "text-classification",
+    model = "j-hartmann/emotion-english-distilroberta-base",
+    top_k = None,
+    device =- 1
+)
+
     results = emotion_classifier(text[:512])
     emotion_scores = results[0]
     top_emotion = max(emotion_scores, key=lambda x: x['score'])
@@ -76,8 +78,15 @@ def analyze_sentiment(text):
     }
 # ========= LABUBU MATCHING TO DO: Change========= #
 def match_labubu(sentiment_score):
-    emotion = sentiment_score["top_emotion"]
+    top_emotions = list(sentiment_score["all_emotions"].items())
+    
+    # Sort by highest scores, descending
+    top_emotions.sort(key=lambda x: x[1], reverse=True)
 
+    # Get top 3 emotion labels
+    top_3_emotions = [label for label, score in top_emotions[:3]]
+
+    # Define emotion to Labubu mapping
     emotion_to_labubu = {
         "joy": "Angel Labubu 😇",
         "sadness": "Sad Labubu 😢",
@@ -89,7 +98,13 @@ def match_labubu(sentiment_score):
         "disgust": "Grumpy Labubu 😤"
     }
 
-    return emotion_to_labubu.get(emotion, emotion_to_labubu["neutral"])
+    # Check for most relevant Labubu in order of emotional weight
+    for emotion in top_3_emotions:
+        if emotion in emotion_to_labubu:
+            return emotion_to_labubu[emotion]
+
+    # Default fallback
+    return emotion_to_labubu["neutral"]
 # def match_labubu(lyrics, sentiment_score):
 #     keywords = lyrics.lower().split()
 #     match_scores = []
@@ -138,6 +153,12 @@ def run_labubu_matcher():
     print("\n=== RESULT ===")
     print(f"🎧 Sentiment: {sentiment}")
     print(f"🔮 Your Labubu is: {prediction}")
+
+    top_3 = sorted(sentiment["all_emotions"].items(), key=lambda x: x[1], reverse=True)[:3]
+    top_3_str = "\n".join([f"  • {emotion.capitalize()}: {score}" for emotion, score in top_3])
+
+    print("🎧 Top Emotions:")
+    print(top_3_str)
     
     print("✅ Script finished without crash.")
     time.sleep(1)
