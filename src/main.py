@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from textblob import TextBlob
+from transformers import pipeline
 
 # ========= CONFIG ========= #
 ACCESS_TOKEN = 'hqBfz2Nc96QV922NM5E8VMK4jBR_DRTEnjPp9p82tbpuGFSKSFEYMVTNXxhygXJh'
@@ -9,7 +10,7 @@ ACCESS_TOKEN = 'hqBfz2Nc96QV922NM5E8VMK4jBR_DRTEnjPp9p82tbpuGFSKSFEYMVTNXxhygXJh
 labubus = [
     {"name": "Forest Labubu", "vibe": "peaceful, nature, calm, gentle"},
     {"name": "Confident Labubu", "vibe": "assured, bold, positive, fearless"},
-    {"name": "Dreamy Labubu", "vibe": "whimsical, soft, fantasy, surreal"},
+    {"name": "Sad Labubu", "vibe": "malancholy, sorrowful, depressed, desolate"},
     {"name": "Angel Labubu", "vibe": "pure, light, innocent, sweet"}
 ]
 
@@ -51,34 +52,59 @@ def scrape_lyrics_from_url(song_url):
     return None
 
 # ========= SENTIMENT ANALYSIS ========= #
+# def analyze_sentiment(text):
+#     blob = TextBlob(text)
+#     sentiment = blob.sentiment
+#     return {
+#         "polarity": sentiment.polarity,
+#         "subjectivity": sentiment.subjectivity
+#     }
+emotion_classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=True)
+
 def analyze_sentiment(text):
-    blob = TextBlob(text)
-    sentiment = blob.sentiment
+    results = emotion_classifier(text[:512])  # Truncate to 512 tokens for model input limit
+    emotion_scores = results[0]  # List of dicts: [{'label': 'joy', 'score': 0.8}, ...]
+
+    top_emotion = max(emotion_scores, key=lambda x: x['score'])
+
     return {
-        "polarity": sentiment.polarity,
-        "subjectivity": sentiment.subjectivity
+        "top_emotion": top_emotion['label'],
+        "confidence": round(top_emotion['score'], 3),
+        "all_emotions": {e['label']: round(e['score'], 3) for e in emotion_scores}
     }
 
 # ========= LABUBU MATCHING TO DO: Change========= #
-def match_labubu(lyrics, sentiment_score):
-    keywords = lyrics.lower().split()
-    match_scores = []
-    for labubu in labubus:
-        vibe_words = labubu["vibe"].split(", ")
-        score = sum(word in keywords for word in vibe_words)
-        match_scores.append((labubu["name"], score))
+# def match_labubu(lyrics, sentiment_score):
+#     keywords = lyrics.lower().split()
+#     match_scores = []
+#     for labubu in labubus:
+#         vibe_words = labubu["vibe"].split(", ")
+#         score = sum(word in keywords for word in vibe_words)
+#         match_scores.append((labubu["name"], score))
     
-    match_scores.sort(key=lambda x: x[1], reverse=True)
+#     match_scores.sort(key=lambda x: x[1], reverse=True)
 
-    if sentiment_score["polarity"] < -0.2:
-        return "Devil Labubu 😈"
-    elif sentiment_score["polarity"] > 0.5:
-        return "Angel Labubu 😇"
-    elif match_scores[0][1] > 0:
-        return match_scores[0][0]
-    else:
-        return "Dreamy Labubu 🌙"
+#     if sentiment_score["polarity"] < -0.2:
+#         return "Devil Labubu 😈"
+#     elif sentiment_score["polarity"] > 0.5:
+#         return "Angel Labubu 😇"
+#     elif match_scores[0][1] > 0:
+#         return match_scores[0][0]
+#     else:
+#         return "Dreamy Labubu 🌙"
+def match_labubu(lyrics, sentiment_score):
+    emotion = sentiment_score["top_emotion"]
 
+    emotion_to_labubu = {
+        "joy": "Angel Labubu 😇",
+        "sadness": "Sad Labubu 😢",
+        "anger": "Devil Labubu 😈",
+        "fear": "Dreamy Labubu 🌙",
+        "love": "Confident Labubu 💖",
+        "surprise": "Forest Labubu 🌲"
+    }
+
+    return emotion_to_labubu.get(emotion, "Dreamy Labubu 🌙")
 # ========= MAIN FUNCTION ========= #
 def run_labubu_matcher():
     song_input = input("🎵 Enter a song title and artist: ")
