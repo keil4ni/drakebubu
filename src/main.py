@@ -40,17 +40,16 @@ def scrape_lyrics_from_url(song_url):
     response = requests.get(song_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    containers = soup.find_all("div", class_="Lyrics__Container-sc-1ynbvzw-6")
+    containers = soup.find_all("div", attrs={"data-lyrics-container": "true"})
     if containers:
         lyrics = "\n".join([c.get_text(separator="\n") for c in containers])
-        return lyrics
+        return lyrics.strip()
 
     legacy = soup.find("div", class_="lyrics")
     if legacy:
-        return legacy.get_text(separator="\n")
+        return legacy.get_text(separator="\n").strip()
 
     return None
- 
 
 # ========= SENTIMENT ANALYSIS ========= #
 def analyze_sentiment(text):
