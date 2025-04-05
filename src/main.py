@@ -8,13 +8,6 @@ import time
 # ========= CONFIG ========= #
 ACCESS_TOKEN = 'hqBfz2Nc96QV922NM5E8VMK4jBR_DRTEnjPp9p82tbpuGFSKSFEYMVTNXxhygXJh'
 
-# ========= LABUBU DATABASE TO DO: CHANGE========= #
-# labubus = [
-#     {"name": "Forest Labubu", "vibe": "peaceful, nature, calm, gentle"},
-#     {"name": "Confident Labubu", "vibe": "assured, bold, positive, fearless"},
-#     {"name": "Sad Labubu", "vibe": "malancholy, sorrowful, depressed, desolate"},
-#     {"name": "Angel Labubu", "vibe": "pure, light, innocent, sweet"}
-# ]
 
 # ========= GENIUS API SEARCH THIS WORKS ========= #
 def search_song(song_title, access_token):
@@ -36,6 +29,7 @@ def search_song(song_title, access_token):
         'artist': song_info['primary_artist']['name'],
         'url': song_info['url']
     }
+
 
 # ========= SCRAPE LYRICS ========= #
 def scrape_lyrics_from_url(song_url):
@@ -70,7 +64,8 @@ def analyze_sentiment(text):
         top_k=None,
         device=-1
     )
-      
+    
+    
     results = emotion_classifier(text[:512])
     emotion_scores = results[0]
     top_emotion = max(emotion_scores, key=lambda x: x['score'])
@@ -94,7 +89,7 @@ def match_labubu(sentiment_score):
         "disgust": "Grumpy Labubu 😤"
     }
 
-    return emotion_to_labubu.get(emotion, "Dreamy Labubu 🌙")
+    return emotion_to_labubu.get(emotion, emotion_to_labubu["neutral"])
 # def match_labubu(lyrics, sentiment_score):
 #     keywords = lyrics.lower().split()
 #     match_scores = []
