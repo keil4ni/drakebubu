@@ -8,8 +8,7 @@ ACCESS_TOKEN = 'hqBfz2Nc96QV922NM5E8VMK4jBR_DRTEnjPp9p82tbpuGFSKSFEYMVTNXxhygXJh
 # ========= LABUBU DATABASE TO DO: CHANGE========= #
 labubus = [
     {"name": "Forest Labubu", "vibe": "peaceful, nature, calm, gentle"},
-    {"name": "Devil Labubu", "vibe": "dark, mischievous, edgy, rebellious"},
-    {"name": "Pirate Labubu", "vibe": "adventurous, bold, wild, risky"},
+    {"name": "Confident Labubu", "vibe": "assured, bold, positive, fearless"},
     {"name": "Dreamy Labubu", "vibe": "whimsical, soft, fantasy, surreal"},
     {"name": "Angel Labubu", "vibe": "pure, light, innocent, sweet"}
 ]
