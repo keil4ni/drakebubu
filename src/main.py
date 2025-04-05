@@ -5,7 +5,7 @@ from textblob import TextBlob
 # ========= CONFIG ========= #
 ACCESS_TOKEN = 'hqBfz2Nc96QV922NM5E8VMK4jBR_DRTEnjPp9p82tbpuGFSKSFEYMVTNXxhygXJh'
 
-# ========= LABUBU DATABASE ========= #
+# ========= LABUBU DATABASE TO DO: CHANGE========= #
 labubus = [
     {"name": "Forest Labubu", "vibe": "peaceful, nature, calm, gentle"},
     {"name": "Devil Labubu", "vibe": "dark, mischievous, edgy, rebellious"},
@@ -14,7 +14,7 @@ labubus = [
     {"name": "Angel Labubu", "vibe": "pure, light, innocent, sweet"}
 ]
 
-# ========= GENIUS API SEARCH ========= #
+# ========= GENIUS API SEARCH THIS WORKS ========= #
 def search_song(song_title, access_token):
     base_url = "https://api.genius.com"
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -40,13 +40,17 @@ def scrape_lyrics_from_url(song_url):
     response = requests.get(song_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    containers = soup.find_all('div', class_='Lyrics__Container-sc-1ynbvzw-6')
+    containers = soup.find_all("div", class_="Lyrics__Container-sc-1ynbvzw-6")
     if containers:
         lyrics = "\n".join([c.get_text(separator="\n") for c in containers])
-    else:
-        legacy = soup.find('div', class_='lyrics')
-        lyrics = legacy.get_text() if legacy else None
-    return lyrics
+        return lyrics
+
+    legacy = soup.find("div", class_="lyrics")
+    if legacy:
+        return legacy.get_text(separator="\n")
+
+    return None
+ 
 
 # ========= SENTIMENT ANALYSIS ========= #
 def analyze_sentiment(text):
@@ -57,7 +61,7 @@ def analyze_sentiment(text):
         "subjectivity": sentiment.subjectivity
     }
 
-# ========= LABUBU MATCHING ========= #
+# ========= LABUBU MATCHING TO DO: Change========= #
 def match_labubu(lyrics, sentiment_score):
     keywords = lyrics.lower().split()
     match_scores = []
@@ -92,6 +96,7 @@ def run_labubu_matcher():
     print("📄 Fetching lyrics...")
 
     lyrics = scrape_lyrics_from_url(song['url'])
+
 
     if not lyrics:
         print("❌ Could not retrieve lyrics.")
