@@ -48,15 +48,6 @@ def scrape_lyrics_from_url(song_url):
 
     return None
 
-# ========= SENTIMENT ANALYSIS ========= #
-# def analyze_sentiment(text):
-#     blob = TextBlob(text)
-#     sentiment = blob.sentiment
-#     return {
-#         "polarity": sentiment.polarity,
-#         "subjectivity": sentiment.subjectivity
-#     }
-
 
 
 
@@ -80,13 +71,10 @@ def analyze_sentiment(text):
 def match_labubu(sentiment_score):
     top_emotions = list(sentiment_score["all_emotions"].items())
     
-    # Sort by highest scores, descending
     top_emotions.sort(key=lambda x: x[1], reverse=True)
 
-    # Get top 3 emotion labels
     top_3_emotions = [label for label, score in top_emotions[:3]]
 
-    # Define emotion to Labubu mapping
     emotion_to_labubu = {
         "joy": "Angel Labubu 😇",
         "sadness": "Sad Labubu 😢",
@@ -98,34 +86,12 @@ def match_labubu(sentiment_score):
         "disgust": "Grumpy Labubu 😤"
     }
 
-    # Check for most relevant Labubu in order of emotional weight
     for emotion in top_3_emotions:
         if emotion in emotion_to_labubu:
             return emotion_to_labubu[emotion]
 
-    # Default fallback
     return emotion_to_labubu["neutral"]
-# def match_labubu(lyrics, sentiment_score):
-#     keywords = lyrics.lower().split()
-#     match_scores = []
-#     for labubu in labubus:
-#         vibe_words = labubu["vibe"].split(", ")
-#         score = sum(word in keywords for word in vibe_words)
-#         match_scores.append((labubu["name"], score))
-    
-#     match_scores.sort(key=lambda x: x[1], reverse=True)
 
-#     if sentiment_score["polarity"] < -0.2:
-#         return "Devil Labubu 😈"
-#     elif sentiment_score["polarity"] > 0.5:
-#         return "Angel Labubu 😇"
-#     elif match_scores[0][1] > 0:
-#         return match_scores[0][0]
-#     else:
-#         return "Dreamy Labubu 🌙"
-
-
-    # return emotion_to_labubu.get(emotion, "Dreamy Labubu 🌙")
 # ========= MAIN FUNCTION ========= #
 def run_labubu_matcher():
     song_input = input("🎵 Enter a song title and artist: ")
