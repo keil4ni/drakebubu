@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Labubu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="result-body"> <!--Added class here-->
+  <div class="result-container">
+    <div class="result-text" id="resultText"></div>
+    <img id="labubuImage" class="labubu-img" src="" alt="Labubu result" />
+    <br />
+    <a href="index.html" class="back-button">Do it again</a>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Group emotions with multiple image options
+      const emotionOptions = {
+        anger: ["anger.png"],
+        disgust: ["disgust.png"],
+        fear: ["fear.png"],
+        joy: ["happy1.png", "happy2.png"],
+        love: ["love1.png", "love2.png"],
+        neutral: ["neutral.png"],
+        sadness: ["sad1.png", "sad2.png"],
+        surprise: ["surprised.png"],
+      };
+  
+      const urlParams = new URLSearchParams(window.location.search);
+      const song = urlParams.get("song");
+  
+      if (!song) {
+        window.location.href = "index.html";
+        return;
+      }
+  
+      // Get emotion names as keys
+      const emotionNames = Object.keys(emotionOptions);
+  
+      // Pick a random emotion
+      const randomEmotion = emotionNames[Math.floor(Math.random() * emotionNames.length)];
+  
+      // From that emotion, pick one of its image options
+      const imageChoices = emotionOptions[randomEmotion];
+      const chosenImage = imageChoices[Math.floor(Math.random() * imageChoices.length)];
+  
+      // Update the page
+      document.getElementById("resultText").textContent = `For "${song}", Drake gets a ${randomEmotion} Labubu`;
+      document.getElementById("labubuImage").src = `images/${chosenImage}`;
+      document.getElementById("labubuImage").alt = `${randomEmotion} Labubu`;
+    });
+  </script>  
+</body>
+</html>
