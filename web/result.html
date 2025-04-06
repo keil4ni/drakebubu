@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Your Labubu</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <link href="htatps://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="result-body"> <!--Added class here-->
@@ -16,17 +16,15 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      // Group emotions with multiple image options
+    document.addEventListener("DOMContentLoaded", async function () {
       const emotionOptions = {
-        anger: ["anger.png"],
-        disgust: ["disgust.png"],
-        fear: ["fear.png"],
         joy: ["happy1.png", "happy2.png"],
-        love: ["love1.png", "love2.png"],
-        neutral: ["neutral.png"],
         sadness: ["sad1.png", "sad2.png"],
+        anger: ["anger.png"],
+        fear: ["fear.png"],
         surprise: ["surprised.png"],
+        neutral: ["neutral.png"],
+        disgust: ["disgust.png"]
       };
   
       const urlParams = new URLSearchParams(window.location.search);
@@ -37,21 +35,28 @@
         return;
       }
   
-      // Get emotion names as keys
-      const emotionNames = Object.keys(emotionOptions);
+      try {
+        const response = await fetch("http://127.0.0.1:5000/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ song })
+        });
   
-      // Pick a random emotion
-      const randomEmotion = emotionNames[Math.floor(Math.random() * emotionNames.length)];
+        const data = await response.json();
   
-      // From that emotion, pick one of its image options
-      const imageChoices = emotionOptions[randomEmotion];
-      const chosenImage = imageChoices[Math.floor(Math.random() * imageChoices.length)];
+        const emotion = data.sentiment.top_emotion.toLowerCase();
+        const imageChoices = emotionOptions[emotion] || ["neutral.png"];
+        const chosenImage = imageChoices[Math.floor(Math.random() * imageChoices.length)];
   
-      // Update the page
-      document.getElementById("resultText").textContent = `For "${song}", Drake gets a ${randomEmotion} Labubu`;
-      document.getElementById("labubuImage").src = `images/${chosenImage}`;
-      document.getElementById("labubuImage").alt = `${randomEmotion} Labubu`;
+        document.getElementById("resultText").textContent = `For "${song}", Drake gets a ${emotion} Labubu`;
+        document.getElementById("labubuImage").src = `images/${chosenImage}`;
+        document.getElementById("labubuImage").alt = `${emotion} Labubu`;
+  
+      } catch (err) {
+        console.error("Failed to analyze song:", err);
+        document.getElementById("resultText").textContent = `Something went wrong analyzing "${song}".`;
+      }
     });
-  </script>  
+  </script>
 </body>
 </html>
