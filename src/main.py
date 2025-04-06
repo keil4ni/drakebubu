@@ -80,7 +80,6 @@ def match_labubu(sentiment_score):
         "sadness": "Sad Labubu 😢",
         "anger": "Devil Labubu 😈",
         "fear": "Dreamy Labubu 🌙",
-        "love": "Love Labubu 💖",
         "surprise": "Forest Labubu 🌲",
         "neutral": "Sleepy Labubu 😴",
         "disgust": "Grumpy Labubu 😤"
