@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Your Labubu</title>
-  <link href="htatps://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="result-body"> <!--Added class here-->
+<body class="result-body">
   <div class="result-container">
-    <div class="result-text" id="resultText"></div>
+    <div class="result-text" id="resultText">Analyzing your song...</div>
     <img id="labubuImage" class="labubu-img" src="" alt="Labubu result" />
     <br />
     <a href="index.html" class="back-button">Do it again</a>
@@ -17,44 +17,50 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", async function () {
-      const emotionOptions = {
-        joy: ["happy1.png", "happy2.png"],
-        sadness: ["sad1.png", "sad2.png"],
-        anger: ["anger.png"],
-        fear: ["fear.png"],
-        surprise: ["surprised.png"],
-        neutral: ["neutral.png"],
-        disgust: ["disgust.png"]
+      const labubuToImage = {
+        "Angel Labubu 😇": "happy1.png",
+        "Sad Labubu 😢": "sad1.png",
+        "Devil Labubu 😈": "anger.png",
+        "Dreamy Labubu 🌙": "fear.png",
+        "Forest Labubu 🌲": "surprised.png",
+        "Sleepy Labubu 😴": "neutral.png",
+        "Grumpy Labubu 😤": "disgust.png"
       };
-  
+
       const urlParams = new URLSearchParams(window.location.search);
       const song = urlParams.get("song");
-  
+
       if (!song) {
         window.location.href = "index.html";
         return;
       }
-  
+
       try {
         const response = await fetch("http://127.0.0.1:5000/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ song })
         });
-  
+
+        if (!response.ok) {
+          throw new Error("Server returned error " + response.status);
+        }
+
         const data = await response.json();
-  
-        const emotion = data.sentiment.top_emotion.toLowerCase();
-        const imageChoices = emotionOptions[emotion] || ["neutral.png"];
-        const chosenImage = imageChoices[Math.floor(Math.random() * imageChoices.length)];
-  
-        document.getElementById("resultText").textContent = `For "${song}", Drake gets a ${emotion} Labubu`;
-        document.getElementById("labubuImage").src = `images/${chosenImage}`;
-        document.getElementById("labubuImage").alt = `${emotion} Labubu`;
-  
-      } catch (err) {
-        console.error("Failed to analyze song:", err);
-        document.getElementById("resultText").textContent = `Something went wrong analyzing "${song}".`;
+
+        const labubu = data.labubu;
+        const imgSrc = labubuToImage[labubu] || "neutral.png";
+
+        document.getElementById("resultText").textContent = 
+          `For "${data.song.title}" by ${data.song.artist}, Drake gets a ${labubu}`;
+
+        document.getElementById("labubuImage").src = `images/${imgSrc}`;
+        document.getElementById("labubuImage").alt = labubu;
+
+      } catch (error) {
+        console.error("Error fetching song analysis:", error);
+        document.getElementById("resultText").textContent = 
+          `Oops! Something went wrong analyzing "${song}". Please try again.`;
       }
     });
   </script>

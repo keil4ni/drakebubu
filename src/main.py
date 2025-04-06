@@ -50,14 +50,14 @@ def scrape_lyrics_from_url(song_url):
 
 
 
-
-def analyze_sentiment(text):
-    emotion_classifier = pipeline(
+emotion_classifier = pipeline(
     "text-classification",
     model = "j-hartmann/emotion-english-distilroberta-base",
     top_k = None,
     device =- 1
 )
+def analyze_sentiment(text):
+   
 
     results = emotion_classifier(text[:512])
     emotion_scores = results[0]
