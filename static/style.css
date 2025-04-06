@@ -1,3 +1,4 @@
+
 * {
   box-sizing: border-box;
 }
@@ -15,7 +16,7 @@ body {
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #bbaecc;
-  background-image: url('background.png');
+  background-image: url('../static/background.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
